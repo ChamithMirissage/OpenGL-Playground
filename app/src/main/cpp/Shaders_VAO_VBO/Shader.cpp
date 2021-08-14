@@ -1,19 +1,6 @@
-#include <jni.h>
-#include <android/log.h>
+#include "Shader.h"
 
-#include <GLES3/gl31.h>
-
-#include "../../../../libs/glm/glm.hpp"
-#include "../../../../libs/glm/gtc/type_ptr.hpp"
-#include "../../../../libs/glm/gtc/matrix_transform.hpp"
-
-#define  LOG_TAG    "Shader"
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
-
-
-glm::mat4 projection;
-glm::mat4 model;
-glm::mat4 view;
+Shader shaderObj;
 
 // Details of the square
 const GLfloat squareVertices[] = {0.5, 0.5,
@@ -24,19 +11,6 @@ const GLfloat squareVertexColors[] = {1.0, 0.0, 0.0,
                                       0.0, 1.0, 0.0,
                                       0.0, 0.0, 1.0,
                                       1.0, 1.0, 0.0};
-
-void init() {
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-}
-
-void resize(int width, int height) {
-    glViewport(0, 0, width, height);
-    // Perspective projection
-    projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.0f);
-    view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-    model = glm::mat4(1.0f);
-}
 
 // Vertex shader
 static const char glVertexShader[] =
@@ -64,7 +38,22 @@ static const char glFragmentShader[] =
         "  fragColor = vertexColor;\n"
         "}\n";
 
-GLuint loadShader(GLenum shaderType, const char *shaderSource) {
+void Shader::init() {
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    // Create the shader program
+    this->shaderProgram = this->createShaderProgram(glVertexShader, glFragmentShader);
+}
+
+void Shader::resize(int width, int height) {
+    glViewport(0, 0, width, height);
+    // Perspective projection
+    this->projection = glm::perspective(glm::radians(45.0f), (float) width / (float) height, 0.1f, 100.0f);
+    this->view = glm::mat4(1.0f);
+    this->view = glm::translate(this->view, glm::vec3(0.0f, 0.0f, -3.0f));
+    this->model = glm::mat4(1.0f);
+}
+
+GLuint Shader::loadShader(GLenum shaderType, const char *shaderSource) {
     GLuint shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &shaderSource, nullptr);
     glCompileShader(shader);
@@ -88,9 +77,9 @@ GLuint loadShader(GLenum shaderType, const char *shaderSource) {
     return shader;
 }
 
-GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource) {
-    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
+GLuint Shader::createShaderProgram(const char *vertexSource, const char *fragmentSource) {
+    GLuint vertexShader = this->loadShader(GL_VERTEX_SHADER, vertexSource);
+    GLuint fragmentShader = this->loadShader(GL_FRAGMENT_SHADER, fragmentSource);
     GLuint program = glCreateProgram();
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
@@ -115,10 +104,7 @@ GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource)
     return program;
 }
 
-void render() {
-    // Create the shader program
-    GLuint shaderProgram = createShaderProgram(glVertexShader, glFragmentShader);
-
+void Shader::render() {
     // Create a vertex array object(VAO) and bind it
     GLuint vao;
     glGenVertexArrays(1, &vao);
@@ -137,9 +123,9 @@ void render() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertexColors), &squareVertexColors, GL_STATIC_DRAW);
 
     // Initialize the vertex vPosition and vColor attributes defined in the vertex shader, get an index for the attribute from the shader
-    GLuint positionLoc = glGetAttribLocation(shaderProgram, "vPosition");
+    GLuint positionLoc = glGetAttribLocation(this->shaderProgram, "vPosition");
     glEnableVertexAttribArray(positionLoc);
-    GLuint colorLoc = glGetAttribLocation(shaderProgram, "vColor");
+    GLuint colorLoc = glGetAttribLocation(this->shaderProgram, "vColor");
     glEnableVertexAttribArray(colorLoc);
 
     // Associate the attribute with the data in the buffer.
@@ -154,18 +140,18 @@ void render() {
     glBindVertexArray(0);
 
     // Bind the shaders
-    glUseProgram(shaderProgram);
+    glUseProgram(this->shaderProgram);
 
     // Clear the window
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Initialize the uniform matrices defined in the vertex shader
-    int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-    int viewLoc = glGetUniformLocation(shaderProgram, "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    int modelLoc = glGetUniformLocation(shaderProgram, "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    int projectionLoc = glGetUniformLocation(this->shaderProgram, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(this->projection));
+    int viewLoc = glGetUniformLocation(this->shaderProgram, "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(this->view));
+    int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
     // bind the VAO
     glBindVertexArray(vao);
@@ -181,15 +167,15 @@ void render() {
 extern "C" {
 
 void Java_com_example_openglplayground_GLRenderer_shaderInit(JNIEnv *env, jclass obj) {
-    init();
+    shaderObj.init();
 }
 
 void Java_com_example_openglplayground_GLRenderer_shaderResize(JNIEnv *env, jclass obj, jint width, jint height) {
-    resize(width, height);
+    shaderObj.resize(width, height);
 }
 
 void Java_com_example_openglplayground_GLRenderer_shaderRender(JNIEnv *env, jclass obj) {
-    render();
+    shaderObj.render();
 }
 
 }
