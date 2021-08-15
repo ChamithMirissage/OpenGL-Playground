@@ -18,6 +18,18 @@ class Texture{
         void init();
         void resize(int width, int height);
         void render();
+
+        GLuint loadShader(GLenum shaderType, const char *shaderSource);
+        GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
+        GLuint loadSimpleTexture();
+
+    protected:
+        glm::mat4 projection;
+        glm::mat4 model;
+        glm::mat4 view;
+
+        GLuint shaderProgram;
+        GLuint texture;
 };
 
 #endif //OPENGLPLAYGROUND_TEXTURES_H

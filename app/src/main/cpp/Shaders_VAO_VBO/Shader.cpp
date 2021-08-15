@@ -139,11 +139,11 @@ void Shader::render() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Bind the shaders
-    glUseProgram(this->shaderProgram);
-
     // Clear the window
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Bind the shaders
+    glUseProgram(this->shaderProgram);
 
     // Initialize the uniform matrices defined in the vertex shader
     int projectionLoc = glGetUniformLocation(this->shaderProgram, "projection");
@@ -160,8 +160,8 @@ void Shader::render() {
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
     // Unbind
-    glUseProgram(0);
     glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 extern "C" {
