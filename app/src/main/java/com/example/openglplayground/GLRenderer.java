@@ -7,7 +7,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-    int whichSubApp = 1; // Set whichSubApp to 0 for run Shader.cpp
+    int whichSubApp = 0; // Set whichSubApp to 0 for run Shader.cpp
                          //                    1 for run Texture.cpp
 
     public GLRenderer(Context context) {}

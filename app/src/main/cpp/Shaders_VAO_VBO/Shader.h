@@ -6,6 +6,7 @@
 
 #include <GLES3/gl31.h>
 
+#include "../Utils.h"
 #include "../../../../libs/glm/glm.hpp"
 #include "../../../../libs/glm/gtc/type_ptr.hpp"
 #include "../../../../libs/glm/gtc/matrix_transform.hpp"
@@ -19,15 +20,14 @@ class Shader{
         void resize(int width, int height);
         void render();
 
-        GLuint loadShader(GLenum shaderType, const char *shaderSource);
-        GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
-
     protected:
         glm::mat4 projection;
         glm::mat4 model;
         glm::mat4 view;
 
         GLuint shaderProgram;
+
+        Utils utils;
 };
 
 #endif //OPENGLPLAYGROUND_SHADER_H

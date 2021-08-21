@@ -43,9 +43,9 @@ static const char glFragmentShader[] =
 void Texture::init(){
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // Create the shader program
-    this->shaderProgram = this->createShaderProgram(glVertexShader, glFragmentShader);
+    this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
     // Create the texture and load it
-    this->texture = loadSimpleTexture();
+    this->simpleTextureID = loadSimpleTexture();
 }
 
 void Texture::resize(int width, int height){
@@ -55,57 +55,6 @@ void Texture::resize(int width, int height){
     this->view = glm::mat4(1.0f);
     this->view = glm::translate(this->view, glm::vec3(0.0f, 0.0f, -3.0f));
     this->model = glm::mat4(1.0f);
-}
-
-GLuint Texture::loadShader(GLenum shaderType, const char *shaderSource) {
-    GLuint shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, &shaderSource, nullptr);
-    glCompileShader(shader);
-
-    GLint compiled = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-    if (!compiled){
-        GLint infoLen = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
-        if (infoLen){
-            char *buf = (char *) malloc(infoLen);
-            if (buf){
-                glGetShaderInfoLog(shader, infoLen, nullptr, buf);
-                LOGE("Could not Compile Shader %d:\n%s\n", shaderType, buf);
-                free(buf);
-            }
-            glDeleteShader(shader);
-            shader = 0;
-        }
-    }
-    return shader;
-}
-
-GLuint Texture::createShaderProgram(const char *vertexSource, const char *fragmentSource) {
-    GLuint vertexShader = this->loadShader(GL_VERTEX_SHADER, vertexSource);
-    GLuint fragmentShader = this->loadShader(GL_FRAGMENT_SHADER, fragmentSource);
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-
-    GLint linkStatus = GL_FALSE;
-    glGetProgramiv(program , GL_LINK_STATUS, &linkStatus);
-    if (linkStatus != GL_TRUE){
-        GLint bufLength = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &bufLength);
-        if (bufLength){
-            char* buf = (char*) malloc(bufLength);
-            if (buf){
-                glGetProgramInfoLog(program, bufLength, nullptr, buf);
-                LOGE("Could not link program:\n%s\n", buf);
-                free(buf);
-            }
-        }
-        glDeleteProgram(program);
-        program = 0;
-    }
-    return program;
 }
 
 // Create a simple 3x3 texture
@@ -194,7 +143,7 @@ void Texture::render(){
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
     // Bind the texture
-    glBindTexture(GL_TEXTURE_2D, this->texture);
+    glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
 
     // bind the VAO
     glBindVertexArray(vao);
