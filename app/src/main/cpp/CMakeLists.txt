@@ -25,6 +25,8 @@ add_library( # Sets the name of the library.
              Shaders_VAO_VBO/Shader.h
              Textures/Texture.cpp
              Textures/Textures.h
+        Draw_Polygons/Polygons.cpp
+        Draw_Polygons/Polygons.h
              Utils.cpp
              Utils.h)
 
@@ -35,7 +37,9 @@ add_library( # Sets the name of the library.
 # completing its build.
 
 find_library( # Sets the name of the path variable.
+              #SOIL2 SOIL2 lib/libsoil2-debug.a
               log-lib
+
 
               # Specifies the name of the NDK library that
               # you want CMake to locate.
@@ -51,4 +55,5 @@ target_link_libraries( # Specifies the target library.
                        # Links the target library to the log library
                        # included in the NDK.
                        GLESv3
-                       ${log-lib} )
+                       ${log-lib}
+                       ${SOIL2})

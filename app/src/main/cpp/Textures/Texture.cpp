@@ -19,8 +19,8 @@ static const char glVertexShader[] =
         "uniform mat4 projection;\n"
         "uniform mat4 view;\n"
         "uniform mat4 model;\n"
-        "in vec4 vPosition;\n"
-        "in vec2 vTextureCord;\n"
+        "layout (location = 0) in vec4 vPosition;\n"
+        "layout (location = 1) in vec2 vTextureCord;\n"
         "out vec2 textureCord;\n"
         "void main()\n"
         "{\n"
@@ -32,7 +32,7 @@ static const char glVertexShader[] =
 static const char glFragmentShader[] =
         "#version 310 es\n"
         "precision mediump float;\n"
-        "uniform sampler2D textureIn;\n"
+        "layout (binding = 0) uniform sampler2D textureIn;\n"
         "in vec2 textureCord;\n"
         "out vec4 fragColor;\n"
         "void main()\n"
@@ -42,10 +42,15 @@ static const char glFragmentShader[] =
 
 void Texture::init(){
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    // Create the shader program
+    // Create a vertex array object(VAO)
+    glGenVertexArrays(1, this->vao);
+    // Create a buffer object(VBO) for each attribute
+    glGenBuffers(2, this->vbo);
+
+    // Create the shader program (loadShader & createShaderProgram functions are in Utils.cpp)
     this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
     // Create the texture and load it
-    this->simpleTextureID = loadSimpleTexture();
+    this->simpleTextureID = this->createSimpleTexture();
 }
 
 void Texture::resize(int width, int height){
@@ -58,11 +63,11 @@ void Texture::resize(int width, int height){
 }
 
 // Create a simple 3x3 texture
-GLuint Texture::loadSimpleTexture(){
+GLuint Texture::createSimpleTexture(){
     // Texture object handle
     GLuint textureId;
     // 3x3 image, RGBA channels raw format
-    GLubyte pixels[9 * 4] =
+    GLubyte data[9 * 4] =
         {
             18,  140, 171, 255, // Some color bottom left
             143, 143, 143, 255, // Some color bottom middle
@@ -74,62 +79,49 @@ GLuint Texture::loadSimpleTexture(){
             0,   255, 0,   255, // Green top middle
             0,   0,   255, 255  // Blue top right
         };
-    // Use tightly packed data
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     // Generate a texture object
     glGenTextures(1, &textureId);
-    // Activate the texture
-    glActiveTexture(GL_TEXTURE0);
-    // Bind the texture object
+    // Make the texture object active
     glBindTexture(GL_TEXTURE_2D, textureId);
-    // Load the texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    // Associate the image data into the the texture object
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 3, 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     // Set the filtering mode
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //Unbind the texture
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     return textureId;
 }
 
 void Texture::render(){
-    // Create a vertex array object(VAO) and bind it
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // Clear the window
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    // Create a buffer object(VBO) for each attribute
-    GLuint vbo[2];
-    glGenBuffers(2, vbo);
+    // Make the vao active
+    glBindVertexArray(this->vao[0]);
 
-    // Bind it to GL_ARRAY_BUFFER and pass the data to the GPU
-    // for vertices
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    // Make the 0th buffer active
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    // Copy the array containing vertices into the 0th buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), &squareVertices, GL_STATIC_DRAW);
-    // for texture coordinates
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+
+    // Make the 1st buffer active
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    // Copy the array containing texture coordinates into the 1st buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoordinates), &textureCoordinates, GL_STATIC_DRAW);
 
-    // Initialize the vertex vPosition and vTextureCord attributes defined in the vertex shader, get an index for the attribute from the shader
-    GLuint positionLoc = glGetAttribLocation(this->shaderProgram, "vPosition");
-    glEnableVertexAttribArray(positionLoc);
-    GLuint textureCordLoc = glGetAttribLocation(this->shaderProgram, "vTextureCord");
-    glEnableVertexAttribArray(textureCordLoc);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    // Associate 0th attribute(defined in the vertex shader) with the 0th buffer
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    // Enable the 0th vertex attribute
+    glEnableVertexAttribArray(0);
 
-    // Associate the attribute with the data in the buffer.
-    // glVertexAttribPointer implicitly refers to the currently bound GL_ARRAY_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(positionLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glVertexAttribPointer(textureCordLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
 
     // Unbind the buffer and VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
-    // Clear the window
-    glClear(GL_COLOR_BUFFER_BIT);
 
     // Bind the shaders
     glUseProgram(this->shaderProgram);
@@ -142,11 +134,12 @@ void Texture::render(){
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
-    // Bind the texture
+    // Activate the 0th texture unit
+    glActiveTexture(GL_TEXTURE0);
+    // Make the texture active
     glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
 
-    // bind the VAO
-    glBindVertexArray(vao);
+    glBindVertexArray(this->vao[0]);
 
     // Draw the square
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

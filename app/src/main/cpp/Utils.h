@@ -7,7 +7,7 @@
 
 #include <GLES3/gl31.h>
 
-#define  LOG_TAG    "Shader"
+#define  LOG_TAG    "openglPlayground"
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
 class Utils{

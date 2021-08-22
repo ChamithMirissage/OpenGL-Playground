@@ -7,8 +7,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
-    int whichSubApp = 0; // Set whichSubApp to 0 for run Shader.cpp
-                         //                    1 for run Texture.cpp
+    /* Set whichSubApp to
+    0 for run Shader.cpp
+    1 for run Texture.cpp
+    2 for run Polygons.cpp*/
+    int whichSubApp = 2;
 
     public GLRenderer(Context context) {}
 
@@ -35,6 +38,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
             case 1:
                 textureInit();
                 break;
+            case 2:
+                polygonsInit();
+                break;
         }
     }
 
@@ -45,6 +51,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 break;
             case 1:
                 textureResize(width, height);
+                break;
+            case 2:
+                polygonsResize(width, height);
                 break;
         }
     }
@@ -57,15 +66,21 @@ public class GLRenderer implements GLSurfaceView.Renderer {
             case 1:
                 textureRender();
                 break;
+            case 2:
+                polygonsRender();
+                break;
         }
     }
 
     public static native void shaderInit();
     public static native void textureInit();
+    public static native void polygonsInit();
 
     public static native void shaderResize(int width, int height);
     public static native void textureResize(int width, int height);
+    public static native void polygonsResize(int width, int height);
 
     public static native void shaderRender();
     public static native void textureRender();
+    public static native void polygonsRender();
 }

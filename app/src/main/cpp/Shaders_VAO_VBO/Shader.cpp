@@ -18,8 +18,8 @@ static const char glVertexShader[] =
         "uniform mat4 projection;\n"
         "uniform mat4 view;\n"
         "uniform mat4 model;\n"
-        "in vec4 vPosition;\n"
-        "in vec4 vColor;\n"
+        "layout (location = 0) in vec4 vPosition;\n"
+        "layout (location = 1) in vec4 vColor;\n"
         "out vec4 vertexColor;\n"
         "void main()\n"
         "{\n"
@@ -40,7 +40,12 @@ static const char glFragmentShader[] =
 
 void Shader::init() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    // Create the shader program
+    // Create a vertex array object(VAO)
+    glGenVertexArrays(1, this->vao);
+    // Create a buffer object(VBO) for each attribute
+    glGenBuffers(2, this->vbo);
+
+    // Create the shader program (loadShader & createShaderProgram functions are in Utils.cpp)
     this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
 }
 
@@ -54,42 +59,35 @@ void Shader::resize(int width, int height) {
 }
 
 void Shader::render() {
-    // Create a vertex array object(VAO) and bind it
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // Clear the window
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    // Create a buffer object(VBO) for each attribute
-    GLuint vbo[2];
-    glGenBuffers(2, vbo);
+    // Make the vao active
+    glBindVertexArray(this->vao[0]);
 
-    // Bind it to GL_ARRAY_BUFFER and pass the data to the GPU
-    // for vertices
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    // Make the 0th buffer active
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    // Copy the array containing vertices into the 0th buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), &squareVertices, GL_STATIC_DRAW);
-    // for colors
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+
+    // Make the 1st buffer active
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    // Copy the array containing colors into the 1st buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertexColors), &squareVertexColors, GL_STATIC_DRAW);
 
-    // Initialize the vertex vPosition and vColor attributes defined in the vertex shader, get an index for the attribute from the shader
-    GLuint positionLoc = glGetAttribLocation(this->shaderProgram, "vPosition");
-    glEnableVertexAttribArray(positionLoc);
-    GLuint colorLoc = glGetAttribLocation(this->shaderProgram, "vColor");
-    glEnableVertexAttribArray(colorLoc);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    // Associate 0th attribute(defined in the vertex shader) with the 0th buffer
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    // Enable the 0th vertex attribute
+    glEnableVertexAttribArray(0);
 
-    // Associate the attribute with the data in the buffer.
-    // glVertexAttribPointer implicitly refers to the currently bound GL_ARRAY_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-    glVertexAttribPointer(positionLoc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-    glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
 
     // Unbind the buffer and VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-
-    // Clear the window
-    glClear(GL_COLOR_BUFFER_BIT);
 
     // Bind the shaders
     glUseProgram(this->shaderProgram);
@@ -102,8 +100,7 @@ void Shader::render() {
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
-    // bind the VAO
-    glBindVertexArray(vao);
+    glBindVertexArray(this->vao[0]);
 
     // Draw the square
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

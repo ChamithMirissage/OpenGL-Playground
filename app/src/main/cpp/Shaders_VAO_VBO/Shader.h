@@ -11,8 +11,10 @@
 #include "../../../../libs/glm/gtc/type_ptr.hpp"
 #include "../../../../libs/glm/gtc/matrix_transform.hpp"
 
-#define  LOG_TAG    "Shader"
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+
+#define numVAOs 1
+#define numVBOs 2
 
 class Shader{
     public:
@@ -24,6 +26,10 @@ class Shader{
         glm::mat4 projection;
         glm::mat4 model;
         glm::mat4 view;
+
+        // OpenGL requires these values be specified in arrays
+        GLuint vao[numVAOs];
+        GLuint vbo[numVBOs];
 
         GLuint shaderProgram;
 
