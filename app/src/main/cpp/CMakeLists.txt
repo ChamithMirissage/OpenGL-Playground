@@ -25,10 +25,13 @@ add_library( # Sets the name of the library.
              Shaders_VAO_VBO/Shader.h
              Textures/Texture.cpp
              Textures/Textures.h
-        Draw_Polygons/Polygons.cpp
-        Draw_Polygons/Polygons.h
-             Utils.cpp
-             Utils.h)
+             Draw_Polygons/Polygons.cpp
+             Draw_Polygons/Polygons.h
+             Touch_Event/touchPoint.cpp
+             Touch_Event/touchPoint.h
+             Utils/ShaderUtils.h
+             Utils/TextureUtils.h
+             Utils/Point.h)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

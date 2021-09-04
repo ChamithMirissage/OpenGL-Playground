@@ -2,53 +2,15 @@
 
 Texture textureObj;
 
-// Details of the square
-const GLfloat squareVertices[] = {0.5, 0.5,
-                                  0.5, -0.5,
-                                  -0.5, -0.5,
-                                  -0.5, 0.5};
-
-const GLfloat textureCoordinates[] = {1.0, 1.0,  // Top right
-                                      1.0, 0.0,  // Bottom right
-                                      0.0, 0.0,  // Bottom left
-                                      0.0, 1.0}; // Top left
-
-// Vertex shader
-static const char glVertexShader[] =
-        "#version 310 es\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "layout (location = 0) in vec4 vPosition;\n"
-        "layout (location = 1) in vec2 vTextureCord;\n"
-        "out vec2 textureCord;\n"
-        "void main()\n"
-        "{\n"
-        "  gl_Position = projection * view * model * vPosition;\n"
-        "  textureCord = vTextureCord;\n"
-        "}\n";
-
-// Fragment shader
-static const char glFragmentShader[] =
-        "#version 310 es\n"
-        "precision mediump float;\n"
-        "layout (binding = 0) uniform sampler2D textureIn;\n"
-        "in vec2 textureCord;\n"
-        "out vec4 fragColor;\n"
-        "void main()\n"
-        "{\n"
-        "  fragColor = texture(textureIn, textureCord);\n"
-        "}\n";
-
 void Texture::init(){
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, this->vao);
+    glGenVertexArrays(1, &this->vao);
     // Create a buffer object(VBO) for each attribute
     glGenBuffers(2, this->vbo);
 
-    // Create the shader program (loadShader & createShaderProgram functions are in Utils.cpp)
-    this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
+    // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
+    this->shaderProgram = ShaderUtils::createShaderProgram(this->glVertexShader, this->glFragmentShader);
     // Create the texture and load it
     this->simpleTextureID = this->createSimpleTexture();
 }
@@ -97,7 +59,7 @@ void Texture::render(){
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Make the vao active
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Make the 0th buffer active
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
@@ -134,12 +96,16 @@ void Texture::render(){
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
+    // Bind textureIn to texture unit 0
+    GLint textureLocation = glGetUniformLocation(this->shaderProgram, "textureIn");
+    glUniform1i(textureLocation, 0);
+
     // Activate the 0th texture unit
     glActiveTexture(GL_TEXTURE0);
     // Make the texture active
     glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
 
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Draw the square
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

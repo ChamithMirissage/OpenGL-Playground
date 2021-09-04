@@ -1,38 +1,16 @@
 #include "Polygons.h"
 
-Polygons polygons;
-
-// Vertex shader
-static const char glVertexShader[] =
-        "#version 310 es\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "layout (location = 0) in vec4 vPosition;\n"
-        "void main()\n"
-        "{\n"
-        "  gl_Position = projection * view * model * vPosition;\n"
-        "}\n";
-
-// Fragment shader
-static const char glFragmentShader[] =
-        "#version 310 es\n"
-        "precision mediump float;\n"
-        "out vec4 fragColor;\n"
-        "void main()\n"
-        "{\n"
-        "  fragColor = vec4(1.0, 0.0, 1.0, 1.0);\n"
-        "}\n";
+Polygons polygonsObj;
 
 void Polygons::init() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, this->vao);
+    glGenVertexArrays(1, &this->vao);
     // Create a buffer object(VBO) for each attribute
     glGenBuffers(1, this->vbo);
 
-    // Create the shader program (loadShader & createShaderProgram functions are in Utils.cpp)
-    this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
+    // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
+    this->shaderProgram = ShaderUtils::createShaderProgram(this->glVertexShader, this->glFragmentShader);
 }
 
 void Polygons::resize(int width, int height) {
@@ -132,7 +110,7 @@ void Polygons::render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Make the vao active
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Make the 0th buffer active
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
@@ -160,7 +138,7 @@ void Polygons::render() {
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Draw the polygon
     if (this->polygonID == 0){
@@ -177,15 +155,15 @@ void Polygons::render() {
 extern "C" {
 
 void Java_com_example_openglplayground_GLRenderer_polygonsInit(JNIEnv *env, jclass obj) {
-    polygons.init();
+    polygonsObj.init();
 }
 
 void Java_com_example_openglplayground_GLRenderer_polygonsResize(JNIEnv *env, jclass obj, jint width, jint height) {
-    polygons.resize(width, height);
+    polygonsObj.resize(width, height);
 }
 
 void Java_com_example_openglplayground_GLRenderer_polygonsRender(JNIEnv *env, jclass obj) {
-    polygons.render();
+    polygonsObj.render();
 }
 
 }

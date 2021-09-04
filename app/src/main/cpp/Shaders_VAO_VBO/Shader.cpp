@@ -1,52 +1,16 @@
 #include "Shader.h"
 
-Shader shader;
-
-// Details of the square
-const GLfloat squareVertices[] = {0.5, 0.5,
-                                  0.5, -0.5,
-                                  -0.5, -0.5,
-                                  -0.5, 0.5};
-const GLfloat squareVertexColors[] = {1.0, 0.0, 0.0,
-                                      0.0, 1.0, 0.0,
-                                      0.0, 0.0, 1.0,
-                                      1.0, 1.0, 0.0};
-
-// Vertex shader
-static const char glVertexShader[] =
-        "#version 310 es\n"
-        "uniform mat4 projection;\n"
-        "uniform mat4 view;\n"
-        "uniform mat4 model;\n"
-        "layout (location = 0) in vec4 vPosition;\n"
-        "layout (location = 1) in vec4 vColor;\n"
-        "out vec4 vertexColor;\n"
-        "void main()\n"
-        "{\n"
-        "  gl_Position = projection * view * model * vPosition;\n"
-        "  vertexColor = vColor;\n"
-        "}\n";
-
-// Fragment shader
-static const char glFragmentShader[] =
-        "#version 310 es\n"
-        "precision mediump float;\n"
-        "in vec4 vertexColor;\n"
-        "out vec4 fragColor;\n"
-        "void main()\n"
-        "{\n"
-        "  fragColor = vertexColor;\n"
-        "}\n";
+Shader shaderObj;
 
 void Shader::init() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, this->vao);
+    glGenVertexArrays(1, &this->vao);
     // Create a buffer object(VBO) for each attribute
     glGenBuffers(2, this->vbo);
 
-    // Create the shader program (loadShader & createShaderProgram functions are in Utils.cpp)
-    this->shaderProgram = utils.createShaderProgram(glVertexShader, glFragmentShader);
+    // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
+    this->shaderProgram = ShaderUtils::createShaderProgram(this->glVertexShader, this->glFragmentShader);
 }
 
 void Shader::resize(int width, int height) {
@@ -63,7 +27,7 @@ void Shader::render() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Make the vao active
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Make the 0th buffer active
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
@@ -100,7 +64,7 @@ void Shader::render() {
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
-    glBindVertexArray(this->vao[0]);
+    glBindVertexArray(this->vao);
 
     // Draw the square
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
@@ -113,15 +77,15 @@ void Shader::render() {
 extern "C" {
 
 void Java_com_example_openglplayground_GLRenderer_shaderInit(JNIEnv *env, jclass obj) {
-    shader.init();
+    shaderObj.init();
 }
 
 void Java_com_example_openglplayground_GLRenderer_shaderResize(JNIEnv *env, jclass obj, jint width, jint height) {
-    shader.resize(width, height);
+    shaderObj.resize(width, height);
 }
 
 void Java_com_example_openglplayground_GLRenderer_shaderRender(JNIEnv *env, jclass obj) {
-    shader.render();
+    shaderObj.render();
 }
 
 }
