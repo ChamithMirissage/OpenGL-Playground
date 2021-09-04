@@ -7,7 +7,6 @@
 
 #include <GLES3/gl31.h>
 
-#include "../Utils/Point.h"
 #include "../Utils/ShaderUtils.h"
 #include "../Utils/TextureUtils.h"
 #include "../../../../libs/glm/glm.hpp"
