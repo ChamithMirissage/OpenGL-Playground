@@ -11,8 +11,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     0 for run Shader.cpp
     1 for run Texture.cpp
     2 for run Polygons.cpp
-    3 for run TouchPoint.cpp*/
-    int whichSubApp = 3;
+    3 for run TouchPoint.cpp
+    4 for run RenderToTexture.cpp*/
+    int whichSubApp = 4;
 
     float x, y;
     int actionUp = -1;
@@ -56,6 +57,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
             case 3:
                 touchPointInit();
                 break;
+            case 4:
+                renderToTextureInit();
+                break;
         }
     }
 
@@ -72,6 +76,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 break;
             case 3:
                 touchPointResize(width, height);
+                break;
+            case 4:
+                renderToTextureResize(width, height);
                 break;
         }
     }
@@ -94,6 +101,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
                 this.isTouch = false;
                 touchPointRender(this.x, this.y, this.actionUp);
                 break;
+            case 4:
+                renderToTextureRender();
+                break;
         }
     }
 
@@ -101,14 +111,17 @@ public class GLRenderer implements GLSurfaceView.Renderer {
     public static native void textureInit();
     public static native void polygonsInit();
     public static native void touchPointInit();
+    public static native void renderToTextureInit();
 
     public static native void shaderResize(int width, int height);
     public static native void textureResize(int width, int height);
     public static native void polygonsResize(int width, int height);
     public static native void touchPointResize(int width, int height);
+    public static native void renderToTextureResize(int width, int height);
 
     public static native void shaderRender();
     public static native void textureRender();
     public static native void polygonsRender();
     public static native void touchPointRender(float x, float y, int actionUp);
+    public static native void renderToTextureRender();
 }

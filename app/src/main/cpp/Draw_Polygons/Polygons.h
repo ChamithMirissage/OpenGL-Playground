@@ -37,8 +37,8 @@ class Polygons{
         int polygonID = 2; // set the ID of the polygon to draw
         int numVertices; // Number of vertices in the polygon
 
-        GLuint vao;
-        GLuint vbo[numVBOs];
+        GLuint VAO;
+        GLuint VBO[numVBOs];
 
         GLuint shaderProgram;
 

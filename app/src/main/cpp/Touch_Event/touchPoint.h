@@ -32,9 +32,9 @@ class TouchPoint{
         vector<GLint> touchIndices;
         vector<GLfloat> touchPoints;
 
-        GLuint vao;
-        GLuint vbo;
-        GLuint ebo;
+        GLuint VAO;
+        GLuint VBO;
+        GLuint EBO;
 
         GLuint shaderProgram;
         GLuint simpleTextureID;

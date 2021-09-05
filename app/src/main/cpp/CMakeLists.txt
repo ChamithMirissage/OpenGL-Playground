@@ -25,6 +25,7 @@ add_library( # Sets the name of the library.
              Textures/Texture.cpp
              Draw_Polygons/Polygons.cpp
              Touch_Event/touchPoint.cpp
+             Render_to_Texture/RenderToTexture.cpp
              Utils/ShaderUtils.h
              Utils/TextureUtils.h
         )

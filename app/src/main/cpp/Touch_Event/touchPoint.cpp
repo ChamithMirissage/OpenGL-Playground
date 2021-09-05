@@ -5,12 +5,12 @@ TouchPoint touchPointObj;
 void TouchPoint::init() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, &this->vao);
+    glGenVertexArrays(1, &this->VAO);
     // Create buffer objects(VBO) for vertices and indices
-    glGenBuffers(1, &this->vbo);
-    glGenBuffers(1, &this->ebo);
+    glGenBuffers(1, &this->VBO);
+    glGenBuffers(1, &this->EBO);
 
-    // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
+    // Create the shader program
     this->shaderProgram = ShaderUtils::createShaderProgram(glVertexShader, glFragmentShader);
     // Create the texture and load it
     this->simpleTextureID = TextureUtils::createSimpleTexture();
@@ -37,27 +37,27 @@ void TouchPoint::render(float x, float y, int actionUp) {
         GLfloat *touches = &this->touchPoints[0];
         GLint *indices = &this->touchIndices[0];
 
-        // Make the vao active
-        glBindVertexArray(this->vao);
+        // Make the VAO active
+        glBindVertexArray(this->VAO);
 
-        // Make the vbo buffer active
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        // Copy the array containing vertices into vbo
+        // Make the VBO buffer active
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+        // Copy the array containing vertices into VBO
         glBufferData(GL_ARRAY_BUFFER, this->touchPoints.size() * sizeof(GLfloat), touches, GL_STATIC_DRAW);
 
-        // Make the ebo buffer active
-        glBindBuffer(GL_ARRAY_BUFFER, this->ebo);
-        // Copy the array containing indices into ebo
+        // Make the EBO buffer active
+        glBindBuffer(GL_ARRAY_BUFFER, this->EBO);
+        // Copy the array containing indices into EBO
         glBufferData(GL_ARRAY_BUFFER, this->touchIndices.size() * sizeof(GLfloat), indices, GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-        // Associate 0th attribute(defined in the vertex shader) with vbo
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+        // Associate 0th attribute(defined in the vertex shader) with VBO
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
         // Enable the 0th vertex attribute
         glEnableVertexAttribArray(0);
 
         // Add indices for indexed rendering, binding to GL_ELEMENT_ARRAY_BUFFER is saved with VAO state
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
 
         // Unbind the buffers and VAO
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -76,7 +76,7 @@ void TouchPoint::render(float x, float y, int actionUp) {
         // Make the texture active
         glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
 
-        glBindVertexArray(this->vao);
+        glBindVertexArray(this->VAO);
 
         // Draw touch points
         glDrawElements(GL_POINTS, this->numPoints, GL_UNSIGNED_INT, nullptr);
@@ -90,7 +90,7 @@ void TouchPoint::render(float x, float y, int actionUp) {
         glUseProgram(this->shaderProgram);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
-        glBindVertexArray(this->vao);
+        glBindVertexArray(this->VAO);
         glDrawElements(GL_POINTS, this->numPoints, GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);

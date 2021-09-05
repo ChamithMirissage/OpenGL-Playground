@@ -1,46 +1,47 @@
-#ifndef OPENGLPLAYGROUND_TEXTURES_H
-#define OPENGLPLAYGROUND_TEXTURES_H
+#ifndef OPENGLPLAYGROUND_RENDERTOTEXTURE_H
+#define OPENGLPLAYGROUND_RENDERTOTEXTURE_H
 
 #include <jni.h>
 #include <android/log.h>
-//#include <SOIL2/SOIL2.h>
 
 #include <GLES3/gl31.h>
 
 #include "../Utils/ShaderUtils.h"
-#include "../../../../libs/glm/glm.hpp"
-#include "../../../../libs/glm/gtc/type_ptr.hpp"
-#include "../../../../libs/glm/gtc/matrix_transform.hpp"
-//#include "../../../../libs/SOIL2/src/SOIL2/SOIL2.h"
+#include "../Utils/TextureUtils.h"
 
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
-#define numVBOs 2
+#define numVAOs 2
+#define numVBOs 3
 
-class Texture{
+class RenderToTexture{
     public:
         void init();
         void resize(int width, int height);
         void render();
 
-        GLuint createSimpleTexture();
+    private:
+        int screenWidth;
+        int screenHeight;
 
-    protected:
-        glm::mat4 projection;
-        glm::mat4 model;
-        glm::mat4 view;
-
-        GLuint VAO;
+        GLuint VAO[numVAOs];
         GLuint VBO[numVBOs];
+
+        GLuint FBO;
+        GLuint renderingTextureID;
 
         GLuint shaderProgram;
         GLuint simpleTextureID;
 
-        // Vertices of square
-        const GLfloat squareVertices[8] = {0.5, 0.5,
-                                           0.5, -0.5,
-                                           -0.5, -0.5,
-                                           -0.5, 0.5};
+        // Vertices of rectangles
+        const GLfloat smallRectangleVertices[8] = {0.0, 0.75,
+                                                   0.0, 0.0,
+                                                   -0.75, 0.0,
+                                                   -0.75, 0.75};
+        const GLfloat largeRectangleVertices[8] = {0.5, 0.5,
+                                                   0.5, -0.5,
+                                                   -0.5, -0.5,
+                                                   -0.5, 0.5};
         // Texture coordinates
         const GLfloat textureCoordinates[8] = {1.0, 1.0,  // Top right
                                                1.0, 0.0,  // Bottom right
@@ -50,14 +51,11 @@ class Texture{
         // Vertex shader
         const char* glVertexShader =
                 "#version 310 es\n"
-                "uniform mat4 projection;\n"
-                "uniform mat4 view;\n"
-                "uniform mat4 model;\n"
                 "layout (location = 0) in vec4 vPosition;\n"
                 "layout (location = 1) in vec2 vTextureCord;\n"
                 "out vec2 textureCord;\n"
                 "void main(){\n"
-                "  gl_Position = projection * view * model * vPosition;\n"
+                "  gl_Position = vPosition;\n"
                 "  textureCord = vTextureCord;\n"
                 "}\n";
 
@@ -73,4 +71,4 @@ class Texture{
                 "}\n";
 };
 
-#endif //OPENGLPLAYGROUND_TEXTURES_H
+#endif //OPENGLPLAYGROUND_RENDERTOTEXTURE_H

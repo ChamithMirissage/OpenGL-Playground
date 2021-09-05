@@ -5,9 +5,9 @@ Texture textureObj;
 void Texture::init(){
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, &this->vao);
+    glGenVertexArrays(1, &this->VAO);
     // Create a buffer object(VBO) for each attribute
-    glGenBuffers(2, this->vbo);
+    glGenBuffers(2, this->VBO);
 
     // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
     this->shaderProgram = ShaderUtils::createShaderProgram(this->glVertexShader, this->glFragmentShader);
@@ -58,26 +58,26 @@ void Texture::render(){
     // Clear the window
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Make the vao active
-    glBindVertexArray(this->vao);
+    // Make the VAO active
+    glBindVertexArray(this->VAO);
 
     // Make the 0th buffer active
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO[0]);
     // Copy the array containing vertices into the 0th buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(squareVertices), &squareVertices, GL_STATIC_DRAW);
 
     // Make the 1st buffer active
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO[1]);
     // Copy the array containing texture coordinates into the 1st buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(textureCoordinates), &textureCoordinates, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO[0]);
     // Associate 0th attribute(defined in the vertex shader) with the 0th buffer
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     // Enable the 0th vertex attribute
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO[1]);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
@@ -105,7 +105,7 @@ void Texture::render(){
     // Make the texture active
     glBindTexture(GL_TEXTURE_2D, this->simpleTextureID);
 
-    glBindVertexArray(this->vao);
+    glBindVertexArray(this->VAO);
 
     // Draw the square
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

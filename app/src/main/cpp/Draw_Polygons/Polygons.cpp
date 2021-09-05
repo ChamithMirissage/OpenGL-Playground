@@ -5,11 +5,11 @@ Polygons polygonsObj;
 void Polygons::init() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     // Create a vertex array object(VAO)
-    glGenVertexArrays(1, &this->vao);
+    glGenVertexArrays(1, &this->VAO);
     // Create a buffer object(VBO) for each attribute
-    glGenBuffers(1, this->vbo);
+    glGenBuffers(1, this->VBO);
 
-    // Create the shader program (loadShader & createShaderProgram functions are in ShaderUtils.cpp)
+    // Create the shader program
     this->shaderProgram = ShaderUtils::createShaderProgram(this->glVertexShader, this->glFragmentShader);
 }
 
@@ -109,11 +109,11 @@ void Polygons::render() {
     // Clear the window
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Make the vao active
-    glBindVertexArray(this->vao);
+    // Make the VAO active
+    glBindVertexArray(this->VAO);
 
     // Make the 0th buffer active
-    glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO[0]);
 
     // Select the polygon to draw
     this->selectPolygon(this->polygonID);
@@ -138,7 +138,7 @@ void Polygons::render() {
     int modelLoc = glGetUniformLocation(this->shaderProgram, "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(this->model));
 
-    glBindVertexArray(this->vao);
+    glBindVertexArray(this->VAO);
 
     // Draw the polygon
     if (this->polygonID == 0){

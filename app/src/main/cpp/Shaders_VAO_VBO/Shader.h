@@ -26,8 +26,8 @@ class Shader{
         glm::mat4 model;
         glm::mat4 view;
 
-        GLuint vao;
-        GLuint vbo[numVBOs];
+        GLuint VAO;
+        GLuint VBO[numVBOs];
 
         GLuint shaderProgram;
 
